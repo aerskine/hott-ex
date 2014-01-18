@@ -89,7 +89,7 @@ module Ex1-3 {i j} {A : Type i} {B : Type j} where
   uppt-× = λ _ → idp
   
   -- definition of induction principle the projections and the transported uniqueness principle
-  -- (this was a confusing question to work out in Agda, since the transport is redundant)
+  -- (this was a confusing question to work out in Agda, since the transport is redundant / inferred by the typechecker)
   ind-× : (C :  (A × B) → Type (lmax i j)) →
     ((a : A ) → (b : B) → C (a , b)) → Π (A × B) C
   ind-× C g ab = transport C (uppt-× ab) (g (fst ab) (snd ab))
@@ -293,3 +293,17 @@ module Ex1-7 {i} {A B : Type i} where
   {-
   Exercise 1.7. Give an alternative derivation of ind′=A from ind=A which avoids the use of universes. (This is easiest using concepts from later chapters.)
   -}
+
+  {-
+  Section 1.12.2 "we can show that ind=A entails Lemmas2.3.1 and 3.11.8, and that these two principles imply ind′=A directly"
+  -}
+
+  {-
+  Lemma 2.3.1 (Transport). Suppose that P is a type family over A and that p : x =A y. Then there is a function p∗ : P(x) → P(y).
+  -}
+
+  {-
+  Lemma 3.11.8. For any A and any a : A, the type ∑(x:A)(a = x) is contractible.
+  -}
+  
+  -- ind'=2 

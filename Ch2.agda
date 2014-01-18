@@ -22,7 +22,11 @@ module Ex2-1 where
   -- statement of the lemma)
 
   {- The versions of concat below WITHOUT the primes 's are proved using Agda's
-  'internal J rule', whatever that might be.  In the HoTT-Agda lib, there is a
+  'internal J rule', whatever that might be.  
+
+  (And there is no --without-J option to turn it off!)
+  
+  In the HoTT-Agda lib, there is a
   comment that:
 
   concat1' and concat3' are proved using ind== which is the closest I could get
@@ -46,6 +50,7 @@ module Ex2-1 where
   concat2 p idp = p
   
   -- uses based path induction, because I couldn't get free path induction to work
+  -- at first
   concat2' : ∀ {i} {A : Type i} {x y z : A} → x == y → y == z → x == z
   concat2' {i} {A} {x} {y} {_} p = ind=' D d where
     D : (z : A) → y == z → Type i
@@ -54,26 +59,16 @@ module Ex2-1 where
     d : D _ idp
     d = p
 
-  -- here is the free path induction version which didn't work.. amazingly it typechecks (with a warning)
+  -- here is the free path induction version which relies upon a 'twist' of
+  -- the paths p and q in order to 'line up the end points' of the idp base
+  -- case of q (Dustin Mulcahey of HoTT-NYC group noticed this trick)
   concat2'' : ∀ {i} {A : Type i} {x y z : A} → x == y → y == z → x == z
-  concat2'' {i} {A} {x} {y} {_} = λ p q → ind== D d q where
+  concat2'' {i} {A} {x} {_} {_} p q = ind== D d q p where
     D : (y z : A) → (q : y == z) → Type i
-    D _ z _ = x == z
+    D y z _ = x == y → x == z
                    
     d : (y : A) → D y y idp
-    d y = _  -- <<<<< I want to use p here, but can't since the free endpoint y in d needs to be 
-             -- restricted to the y' that p : x == y' connects to (and I don't know how to talk
-             -- Agda into this).  In fact, on reflection, it is probably to be expected that
-             -- since p is alreay given, we can only used left-based path induction from the 
-             -- point y' that p has already connected to, as-in the definition of concat2' above
-
-  concat2''' : ∀ {i} {A : Type i} {x y z : A} → x == y → y == z → x == z
-  concat2''' {i} {A} {x} {y} {z} p = ind==2 D d where
-    D : {y z : A} → (q : y == z) → Type i
-    D {_} {z} _ = x == z
-                   
-    d : {y' : A} → D {y'} {y'} idp
-    d {yy} = {!!}  -- <<<<< I want to use p here, but can't since the free endpoint y in d needs to be 
+    d _ = λ p → p
 
   concat3 : ∀ {i} {A : Type i} {x y z : A} → x == y → y == z → x == z
   concat3 idp idp = idp

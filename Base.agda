@@ -195,6 +195,23 @@ _ ∎ = idp
 
 syntax ap f p = p |in-ctx f
 
+{- Truncation levels
+
+The type of truncation levels is isomorphic to the type of natural numbers but
+"starts at -2".
+-}
+
+data TLevel : Type₀ where
+  ⟨-2⟩ : TLevel
+  succT : (n : TLevel) → TLevel
+
+ℕ₋₂ = TLevel
+
+⟨-1⟩ : TLevel
+⟨-1⟩ = succT ⟨-2⟩
+
+⟨0⟩ : TLevel
+⟨0⟩ = succT ⟨-1⟩
 
 {- Coproducts and case analysis -}
 
@@ -281,3 +298,16 @@ module _ {i} {j} {A : Type i} {B : Type j} where
       f-g : (b : B) → f (g b) == b
       g-f : (a : A) → g (f a) == a
       adj : (a : A) → ap f (g-f a) == f-g (f a)
+
+{- Definition of contractible types and truncation levels -}
+
+module _ {i} where
+  is-contr : Type i → Type i
+  is-contr A = Σ A (λ x → ((y : A) → x == y))
+
+  has-level : ℕ₋₂ → (Type i → Type i)
+  has-level ⟨-2⟩ A = is-contr A
+  has-level (succT n) A = (x y : A) → has-level n (x == y)
+
+  is-prop = has-level ⟨-1⟩
+  is-set  = has-level ⟨0⟩
