@@ -303,7 +303,7 @@ module _ {i} {j} {A : Type i} {B : Type j} where
 
 module _ {i} where
   is-contr : Type i → Type i
-  is-contr A = Σ A (λ x → ((y : A) → x == y))
+  is-contr A = Σ A (λ a → ((x : A) → a == x))
 
   has-level : ℕ₋₂ → (Type i → Type i)
   has-level ⟨-2⟩ A = is-contr A

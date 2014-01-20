@@ -98,7 +98,11 @@ module Ex1-3 {i j} {A : Type i} {B : Type j} where
   ind-×= : (C :  (A × B) → Type (lmax i j)) →
     (g : ((a : A ) → (b : B) → C (a , b))) → 
     ∀ {a b} → ind-× C g (a , b) == g a b
-  ind-×= _ _ = idp 
+  ind-×= C g {a} {b} = -- idp
+    ind-× C g (a , b) =⟨ idp ⟩
+    transport C (uppt-× (a , b)) (g a b) =⟨ idp ⟩
+    transport C idp (g a b) =⟨ idp ⟩
+    g a b ∎
   
   -- book definition of induction principle using pattern matching
   pattern-match-ind-× : (C :  (A × B) → Type (lmax i j)) →
@@ -289,7 +293,7 @@ module Ex1-6 {i} {A B : Type i} where
     a = fst-x ab
     b = snd-x ab
 
-module Ex1-7 {i} {A B : Type i} where
+module Ex1-7 where
   {-
   Exercise 1.7. Give an alternative derivation of ind′=A from ind=A which avoids the use of universes. (This is easiest using concepts from later chapters.)
   -}
@@ -305,5 +309,10 @@ module Ex1-7 {i} {A B : Type i} where
   {-
   Lemma 3.11.8. For any A and any a : A, the type ∑(x:A)(a = x) is contractible.
   -}
+  lemma-3-11-8 : ∀ {i} {A : Type i} (a : A) → is-contr (Σ A (λ x → a == x))
+  lemma-3-11-8 {i} {A} a = (((a , idp)) , f) where
+    f : (y : Σ A (_==_ a)) → (a , idp) == y
+    f (x , p) = {!!}
   
-  -- ind'=2 
+  ind='2 : ∀ {i j} {A : Type i} {a : A} (D : (x : A) (p : a == x) → Type j) (d : D a idp) {x : A} (p : a == x) → D x p
+  ind='2 = {!!}
