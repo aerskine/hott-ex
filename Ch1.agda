@@ -6,15 +6,14 @@ module Ch1 where
 open import Base
             
 -- warmup
-module Eq-1-11-2 where
+module Eq-1-11-2 {i j} {A : Type i} {B : Type j} where
 
   -- import lib.types.Coproduct
   -- open import lib.types.Empty
   -- open import lib.types.Sigma
                  
   -- If not A and not B, then not (A or B)
-  deMorgan1 : {A B : Type0} →
-    (A → ⊥) × (B → ⊥) → (Coprod A B → ⊥)
+  deMorgan1 : (A → ⊥) × (B → ⊥) → (Coprod A B → ⊥)
   -- deMorgan1 (notA , notB) ab = {!!} -- {!!} becomes =>
   -- deMorgan1 (notA , notB) (inl x) = {!!} -- by cases, C-c C-c on param ab
   -- deMorgan1 (notA , notB) (inr x) = {!!}
@@ -24,14 +23,14 @@ module Eq-1-11-2 where
 module Ex1-1 where
   
   {-
-Exercise 1.1. Given functions f : A -> B and g : B -> C, define their composite g o f : A ->  C.
+  Exercise 1.1. Given functions f : A -> B and g : B -> C, define their composite g o f : A ->  C.
   Show that we have h o (g o f ) == (h o g) o f
   -}
   
-  _o_ : {A B C : Type0} → (B → C) → (A → B) → A → C
+  _o_ : ∀ {i} {A B C : Type i} → (B → C) → (A → B) → A → C
   (g o f) x = g (f x)
   
-  o-assoc : ∀ {A B C D} →
+  o-assoc : ∀ {i} {A B C D : Type i} →
     (h : C → D) → (g : B → C) → (f : A → B) →
     h o (g o f) == (h o g) o f
   o-assoc _ _ _ = idp -- "it's de proof"
@@ -43,11 +42,11 @@ module Ex1-2 where
   -- Derive the recursion principle for products recA×B using only the projections, and
   -- verify that the definitional equalities are valid. Do the same for Σ-types.
   
-  recAxB : {A B C : Type0} →
+  recAxB : ∀ {i} {A B C : Type i} →
     (A → B → C) → A × B → C
   recAxB f ab = f (fst ab) (snd ab)
   
-  recAxB= : ∀ {A B C} 
+  recAxB= : ∀ {i} {A B C : Type i} 
     {f : A → B → C}
     {a : A} {b : B} →
     recAxB f (a , b) == f a b
@@ -85,7 +84,7 @@ module Ex1-3 {i j} {A : Type i} {B : Type j} where
   -}
   
   -- book definition of uppt
-  uppt-× : (x : (A × B)) → (fst x , snd x) == x
+  uppt-× : (ab : (A × B)) → (fst ab , snd ab) == ab
   uppt-× = λ _ → idp
   
   -- definition of induction principle the projections and the transported uniqueness principle
@@ -295,24 +294,43 @@ module Ex1-6 {i} {A B : Type i} where
 
 module Ex1-7 where
   {-
-  Exercise 1.7. Give an alternative derivation of ind′=A from ind=A which avoids the use of universes. (This is easiest using concepts from later chapters.)
+  Exercise 1.7. Give an alternative derivation of ind′=A from ind=A which avoids the use of universes. (This is easiest
+  using concepts from later chapters.)
   -}
 
   {-
-  Section 1.12.2 "we can show that ind=A entails Lemmas2.3.1 and 3.11.8, and that these two principles imply ind′=A directly"
+  Section 1.12.2 "we can show that ind=A entails Lemmas2.3.1 and 3.11.8, and that these two principles imply ind′=A 
+  directly"
   -}
 
   {-
-  Lemma 2.3.1 (Transport). Suppose that P is a type family over A and that p : x =A y. Then there is a function p∗ : P(x) → P(y).
+  Lemma 2.3.1 (Transport). Suppose that P is a type family over A and that p : x =A y. Then there is a function 
+    p∗ : P(x) → P(y).
   -}
 
   {-
   Lemma 3.11.8. For any A and any a : A, the type ∑(x:A)(a = x) is contractible.
   -}
-  lemma-3-11-8 : ∀ {i} {A : Type i} (a : A) → is-contr (Σ A (λ x → a == x))
-  lemma-3-11-8 {i} {A} a = (((a , idp)) , f) where
-    f : (y : Σ A (_==_ a)) → (a , idp) == y
-    f (x , p) = {!!}
+  lemma-3-11-8 : ∀ {i} {A : Type i} (a : A) → is-contr (Σ A λ x → a == x)
+  lemma-3-11-8 {_} {A} a = ((a , idp)) , λ { (x , p) → along {x} p } where
+    along : {x : A}(p : a == x) → (a , idp) == (x , p)
+    along idp = idp -- should really prove using ind== then ind='2 will indeed be based path induction from free
+                    -- path induction
+
+  ind='2 : ∀ {i j} {A : Type i} {a : A} → 
+    (D : (x : A) (p : a == x) → Type j) →
+    D a idp →
+    {x : A} (p : a == x) → 
+    D x p
+  ind='2 {i} {j} {A} {a} D d {x} p = transport (λ { (x , p) → D x p}) (snd (lemma-3-11-8 a) (x , p)) d
+
+module Ex1-14 where
+
+  {- Exercise 1.14. Why do the induction principles for identity types not allow us to construct a
+  function f : ∏(x:A) ∏(p:x=x)(p = reflx) with the defining equation f (x, reflx ) :≡ reflreflx ? -}
+
+module Ex1-15 {i j} {A : Type i} {C : A → Type j} where
+  {- Exercise 1.15. Show that indiscernability of identicals follows from path induction. -}
   
-  ind='2 : ∀ {i j} {A : Type i} {a : A} (D : (x : A) (p : a == x) → Type j) (d : D a idp) {x : A} (p : a == x) → D x p
-  ind='2 = {!!}
+  f : ∀ {x y : A} (p : x == y) → C x → C y
+  f idp = ind== (λ x y _ → C x → C y) (λ x → λ cx → cx) idp
