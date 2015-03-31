@@ -2,16 +2,8 @@
 
 module Base where
 
-postulate  -- Universe levels
-  ULevel : Set
-  lzero : ULevel
-  lsucc : ULevel → ULevel
-  lmax : ULevel → ULevel → ULevel
-                           
-{-# BUILTIN LEVEL ULevel #-}
-{-# BUILTIN LEVELZERO lzero #-}
-{-# BUILTIN LEVELSUC lsucc #-}
-{-# BUILTIN LEVELMAX lmax #-}
+open import Agda.Primitive public using (lzero)
+  renaming (Level to ULevel; lsuc to lsucc; _⊔_ to lmax)
 
 Type : (i : ULevel) → Set (lsucc i)
 Type i = Set i
@@ -29,8 +21,8 @@ data ℕ : Type₀ where
   S : (n : ℕ) → ℕ
 
 {-# BUILTIN NATURAL ℕ #-}
-{-# BUILTIN ZERO O #-}
-{-# BUILTIN SUC S #-}
+
+Nat = ℕ
 
 infix 3 _==_
 
